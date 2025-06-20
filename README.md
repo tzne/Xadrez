@@ -1,2 +1,0 @@
-# Xadrez
-Trabalho de POO
