@@ -64,7 +64,7 @@ public class Jogo {
         tabuleiro.getCasa(new Posicao('c', 1)).setPeca(bispoB1); branco.adicionarPeca(bispoB1);
         tabuleiro.getCasa(new Posicao('f', 1)).setPeca(bispoB2); branco.adicionarPeca(bispoB2);
         // Dama
-        Peca damaB = new Dama(Cor.BRANCA);
+        Peca damaB = new Rainha(Cor.BRANCA);
         tabuleiro.getCasa(new Posicao('d', 1)).setPeca(damaB); branco.adicionarPeca(damaB);
         // Rei
         Peca reiB = new Rei(Cor.BRANCA);
@@ -91,7 +91,7 @@ public class Jogo {
         tabuleiro.getCasa(new Posicao('c', 8)).setPeca(bispoP1); preto.adicionarPeca(bispoP1);
         tabuleiro.getCasa(new Posicao('f', 8)).setPeca(bispoP2); preto.adicionarPeca(bispoP2);
         // Dama
-        Peca damaP = new Dama(Cor.PRETA);
+        Peca damaP = new Rainha(Cor.PRETA);
         tabuleiro.getCasa(new Posicao('d', 8)).setPeca(damaP); preto.adicionarPeca(damaP);
         // Rei
         Peca reiP = new Rei(Cor.PRETA);
