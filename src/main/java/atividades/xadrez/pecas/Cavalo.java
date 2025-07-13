@@ -7,6 +7,8 @@ import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
 import atividades.xadrez.Peca;
 import atividades.xadrez.TipoPeca;
+import atividades.xadrez.Tabuleiro;
+import atividades.xadrez.Jogada;
 import java.util.List;
 import java.util.ArrayList; // Exemplo de import
 /**
