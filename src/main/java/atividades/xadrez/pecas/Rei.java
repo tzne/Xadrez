@@ -47,7 +47,9 @@ public class Rei extends Peca {
         }
 
         Posicao posOrigem = casaOrigem.getPosicao();
-        // Movimentos em todas as 8 direções, mas apenas uma casa
+        Cor corOponente = (this.getCor() == Cor.BRANCA) ? Cor.PRETA : Cor.BRANCA;
+        
+        // Movimentos em todas as 8 direções, apenas uma casa
         int[][] movimentosRei = {
             {1, 0}, {-1, 0}, {0, 1}, {0, -1},
             {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
@@ -62,13 +64,49 @@ public class Rei extends Peca {
                 Casa casaDestino = tabuleiro.getCasa(posDestino);
 
                 if (casaDestino.estaVazia() || casaDestino.getPeca().getCor() != this.getCor()) {
-                    // TODO: Adicionar verificação se a casa de destino está sob ataque (xeque)
-                    Peca pecaCapturada = casaDestino.estaVazia() ? null : casaDestino.getPeca();
-                    movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaCapturada, false, false, null));
+                    // VERIFICAÇÃO SE A CASA DE DESTINO ESTÁ SOB ATAQUE
+                    if (!jogo.isCasaEmAtaque(posDestino, corOponente)) {
+                        Peca pecaCapturada = casaDestino.estaVazia() ? null : casaDestino.getPeca();
+                        movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaCapturada, false, false, null));
+                    }
                 }
             }
         }
-        // TODO: Implementar lógica do Roque
+        
+        // LÓGICA DO ROQUE
+        if (!this.jaMoveu() && !jogo.isCasaEmAtaque(posOrigem, corOponente)) {
+            // Roque do lado do Rei (Roque Pequeno)
+            verificarRoque(jogo, tabuleiro, casaOrigem, 1, corOponente, movimentos);
+            // Roque do lado da Rainha (Roque Grande)
+            verificarRoque(jogo, tabuleiro, casaOrigem, -1, corOponente, movimentos);
+        }
+
         return movimentos;
+    }
+
+    private void verificarRoque(Jogo jogo, Tabuleiro tabuleiro, Casa casaOrigem, int direcao, Cor corOponente, List<Jogada> movimentos) {
+        int linha = casaOrigem.getPosicao().getLinha();
+        char colunaTorre = (direcao == 1) ? 'h' : 'a';
+        Peca pecaTorre = tabuleiro.getPecaEmPosicao(new Posicao(colunaTorre, linha));
+
+        if (pecaTorre != null && pecaTorre.getTipo() == TipoPeca.TORRE && !pecaTorre.jaMoveu()) {
+            boolean caminhoLivre = true;
+            // Verifica se o caminho entre o rei e a torre está livre e seguro
+            for (int i = 1; i < (direcao == 1 ? 3 : 4); i++) {
+                char colunaVerificada = (char) (casaOrigem.getPosicao().getColuna() + i * direcao);
+                Posicao posVerificada = new Posicao(colunaVerificada, linha);
+                if (!tabuleiro.getCasa(posVerificada).estaVazia() || (i < 3 && jogo.isCasaEmAtaque(posVerificada, corOponente))) {
+                    caminhoLivre = false;
+                    break;
+                }
+            }
+            
+            if (caminhoLivre) {
+                char colunaDestinoRei = (char) (casaOrigem.getPosicao().getColuna() + 2 * direcao);
+                Posicao posDestinoRei = new Posicao(colunaDestinoRei, linha);
+                Casa casaDestinoRei = tabuleiro.getCasa(posDestinoRei);
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestinoRei, this, null, true, false, null));
+            }
+        }
     }
 }

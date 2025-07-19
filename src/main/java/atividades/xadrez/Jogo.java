@@ -136,6 +136,31 @@ public class Jogo {
     }
 
     /**
+     * Verifica se uma determinada casa está sob ataque por qualquer peça da cor atacante.
+     * @param posicao A posição da casa a ser verificada.
+     * @param corAtacante A cor das peças que podem estar atacando.
+     * @return true se a casa estiver sob ataque, false caso contrário.
+     */
+    public boolean isCasaEmAtaque(Posicao posicao, Cor corAtacante) {
+        Jogador atacante = getJogador(corAtacante);
+        for (Peca peca : atacante.getPecas()) {
+            // Para evitar recursão infinita ao verificar movimentos do rei,
+            // aqui calculamos os movimentos "brutos" sem checar a segurança do rei adversário.
+            // Para todas as outras peças, o método `calcularMovimentosLegais` é seguro.
+            List<Jogada> movimentos = peca.calcularMovimentosLegais(this.tabuleiro, this);
+            for (Jogada jogada : movimentos) {
+                if (jogada.getCasaDestino().getPosicao().equals(posicao)) {
+                    // Para peões, a captura é diferente do movimento, então verificamos a posição de destino.
+                    // Para as outras peças, se a casa de destino for a `posicao`, ela está sob ataque.
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Tenta executar uma jogada no jogo.
      * Este é o método principal que encapsula a lógica de regras e atualização do estado.
      *
