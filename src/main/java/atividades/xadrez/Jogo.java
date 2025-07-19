@@ -123,11 +123,6 @@ public class Jogo {
         return ultimaJogada;
     }
 
-    /**
-     * Retorna o jogador pela cor.
-     * @param cor A cor do jogador.
-     * @return O objeto Jogador correspondente à cor, ou null se não encontrado.
-     */
     public Jogador getJogador(Cor cor) {
         return jogadores.stream()
                         .filter(j -> j.getCor() == cor)
@@ -137,70 +132,108 @@ public class Jogo {
 
     /**
      * Verifica se uma determinada casa está sob ataque por qualquer peça da cor atacante.
-     * @param posicao A posição da casa a ser verificada.
-     * @param corAtacante A cor das peças que podem estar atacando.
-     * @return true se a casa estiver sob ataque, false caso contrário.
      */
     public boolean isCasaEmAtaque(Posicao posicao, Cor corAtacante) {
         Jogador atacante = getJogador(corAtacante);
         for (Peca peca : atacante.getPecas()) {
-            // Para evitar recursão infinita ao verificar movimentos do rei,
-            // aqui calculamos os movimentos "brutos" sem checar a segurança do rei adversário.
-            // Para todas as outras peças, o método `calcularMovimentosLegais` é seguro.
             List<Jogada> movimentos = peca.calcularMovimentosLegais(this.tabuleiro, this);
             for (Jogada jogada : movimentos) {
                 if (jogada.getCasaDestino().getPosicao().equals(posicao)) {
-                    // Para peões, a captura é diferente do movimento, então verificamos a posição de destino.
-                    // Para as outras peças, se a casa de destino for a `posicao`, ela está sob ataque.
                     return true;
                 }
             }
         }
         return false;
     }
+    
+    /**
+     * Encontra a posição do Rei de uma determinada cor.
+     */
+    private Posicao findPosicaoRei(Cor corRei) {
+        for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
+            for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
+                char c = (char) ('a' + j);
+                int l = Tabuleiro.TAMANHO - i;
+                Posicao p = new Posicao(c,l);
+                Peca peca = tabuleiro.getPecaEmPosicao(p);
+                if (peca != null && peca.getTipo() == TipoPeca.REI && peca.getCor() == corRei) {
+                    return p;
+                }
+            }
+        }
+        return null; // Não deve acontecer em um jogo normal
+    }
+
+    /**
+     * Verifica se o Rei de uma determinada cor está em xeque.
+     */
+    public boolean isReiEmXeque(Cor corRei) {
+        Posicao posRei = findPosicaoRei(corRei);
+        if (posRei == null) {
+            return false; // Rei não está no tabuleiro
+        }
+        Cor corOponente = (corRei == Cor.BRANCA) ? Cor.PRETA : Cor.BRANCA;
+        return isCasaEmAtaque(posRei, corOponente);
+    }
+    
+    /**
+     * Gera todos os movimentos legais para um jogador, considerando a regra de não poder terminar em xeque.
+     */
+    private List<Jogada> getTodosMovimentosSeguros(Jogador jogador) {
+        List<Jogada> movimentosSeguros = new ArrayList<>();
+        
+        for (Peca peca : jogador.getPecas()) {
+            List<Jogada> movimentosDaPeca = peca.calcularMovimentosLegais(tabuleiro, this);
+            for (Jogada jogada : movimentosDaPeca) {
+                // Simula a jogada
+                Peca pecaCapturada = tabuleiro.executarMovimentoSimulado(jogada);
+                
+                // Se o rei não estiver em xeque após a jogada, ela é segura
+                if (!isReiEmXeque(jogador.getCor())) {
+                    movimentosSeguros.add(jogada);
+                }
+                
+                // Desfaz a jogada simulada
+                tabuleiro.desfazerMovimentoSimulado(jogada, pecaCapturada);
+            }
+        }
+        return movimentosSeguros;
+    }
 
 
     /**
      * Tenta executar uma jogada no jogo.
-     * Este é o método principal que encapsula a lógica de regras e atualização do estado.
-     *
-     * @param jogadaProposta A jogada proposta pelo usuário.
-     * @return true se a jogada foi válida e executada, false caso contrário.
      */
      public boolean executarJogada(Jogada jogadaProposta) {
+        Peca pecaMovida = jogadaProposta.getPecaMovida();
+        
+        // Validações básicas
         if (jogadaProposta.getJogador() != jogadorAtual) {
             System.out.println("Não é a vez do jogador " + jogadaProposta.getJogador().getCor() + ".");
             return false;
         }
-
-        Peca pecaMovida = jogadaProposta.getPecaMovida();
-        Casa casaOrigem = jogadaProposta.getCasaOrigem();
-        Casa casaDestino = jogadaProposta.getCasaDestino();
-
         if (pecaMovida.getCor() != jogadorAtual.getCor()) {
             System.out.println("Você só pode mover suas próprias peças.");
             return false;
         }
 
-        if (casaOrigem.getPeca() != pecaMovida) {
-            System.out.println("A peça na casa de origem não corresponde à peça na jogada.");
-            return false;
-        }
-
-        List<Jogada> movimentosLegais = pecaMovida.calcularMovimentosLegais(tabuleiro, this);
-        boolean movimentoValido = false;
+        // Gera todos os movimentos que tiram o jogador de um possível xeque
+        List<Jogada> movimentosValidos = getTodosMovimentosSeguros(jogadorAtual);
+        
         Jogada jogadaReal = null;
-
-        for (Jogada legal : movimentosLegais) {
-            if (legal.getCasaDestino().equals(casaDestino)) {
-                movimentoValido = true;
-                jogadaReal = legal; 
+        for (Jogada valida : movimentosValidos) {
+            if (valida.getPecaMovida() == pecaMovida && valida.getCasaDestino().equals(jogadaProposta.getCasaDestino())) {
+                jogadaReal = valida;
                 break;
             }
         }
 
-        if (!movimentoValido) {
-            System.out.println("Movimento inválido para a peça " + pecaMovida.getTipo() + ".");
+        if (jogadaReal == null) {
+            if (isReiEmXeque(jogadorAtual.getCor())) {
+                System.out.println("Movimento inválido. Você deve sair do xeque.");
+            } else {
+                System.out.println("Movimento inválido para a peça " + pecaMovida.getTipo() + ".");
+            }
             return false;
         }
 
@@ -211,26 +244,32 @@ public class Jogo {
             this.ultimaJogada = jogadaReal;
 
             if (jogadaReal.getPecaCapturada() != null) {
-                Jogador adversario = getJogador(jogadorAtual.getCor() == Cor.BRANCA ? Cor.PRETA : Cor.BRANCA);
+                Jogador adversario = getAdversario();
                 adversario.removerPeca(jogadaReal.getPecaCapturada());
-                System.out.println("Peça capturada: " + jogadaReal.getPecaCapturada().getTipo());
             }
 
+            // Após a jogada, verifica o estado do adversário
+            Jogador adversario = getAdversario();
+            if (isReiEmXeque(adversario.getCor())) {
+                List<Jogada> movimentosDeFuga = getTodosMovimentosSeguros(adversario);
+                if (movimentosDeFuga.isEmpty()) {
+                    estadoJogo = EstadoJogo.XEQUEMATE;
+                } else {
+                    System.out.println("XEQUE!");
+                }
+            }
+            
             trocarJogadorAtual();
             return true;
         }
         return false;
     }
+    
+    private Jogador getAdversario() {
+        return (jogadorAtual.getCor() == Cor.BRANCA) ? getJogador(Cor.PRETA) : getJogador(Cor.BRANCA);
+    }
 
-
-    /**
-     * Troca o jogador atual.
-     */
     private void trocarJogadorAtual() {
-        if (jogadorAtual.getCor() == Cor.BRANCA) {
-            jogadorAtual = getJogador(Cor.PRETA);
-        } else {
-            jogadorAtual = getJogador(Cor.BRANCA);
-        }
+        jogadorAtual = getAdversario();
     }
 }
