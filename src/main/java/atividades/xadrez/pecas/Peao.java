@@ -73,9 +73,22 @@ public class Peao extends Peca {
             }
         }
 
-        // TODO: Implementar En Passant
-        // TODO: Implementar Promoção do Peão
+        // 4. Implementação do En Passant
+        Jogada ultimaJogada = jogo.getUltimaJogada();
+        if (ultimaJogada != null &&
+            ultimaJogada.getPecaMovida().getTipo() == TipoPeca.PEAO &&
+            Math.abs(ultimaJogada.getCasaOrigem().getPosicao().getLinha() - ultimaJogada.getCasaDestino().getPosicao().getLinha()) == 2 && // Foi um pulo duplo
+            posOrigem.getLinha() == ultimaJogada.getCasaDestino().getPosicao().getLinha() && // O peão está na mesma linha
+            Math.abs(posOrigem.getColuna() - ultimaJogada.getCasaDestino().getPosicao().getColuna()) == 1) { // O peão está em uma coluna adjacente
 
+            Peca pecaCapturada = ultimaJogada.getPecaMovida();
+            Posicao posDestinoEnPassant = new Posicao(ultimaJogada.getCasaDestino().getPosicao().getColuna(), posOrigem.getLinha() + direcao);
+            Casa casaDestino = tabuleiro.getCasa(posDestinoEnPassant);
+            movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaCapturada, false, true, null));
+        }
+
+
+        // TODO: Implementar Promoção do Peão
         return movimentos;
     }
 }

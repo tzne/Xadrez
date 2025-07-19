@@ -29,6 +29,7 @@ public class Tabuleiro {
     }
 
     public Casa getCasa(Posicao posicao) {
+        if (posicao == null) return null;
         int arrayLinha = TAMANHO - posicao.getLinha();
         int arrayColuna = posicao.getColuna() - 'a';
 
@@ -84,10 +85,24 @@ public class Tabuleiro {
             return false;
         }
 
-        // Lógica de roque
-        if (jogada.isRoque()) {
+        // Lógica de En Passant
+        if (jogada.isEnPassant()) {
+             // Move o peão que captura
+            casaOrigem.removerPeca();
+            casaDestino.setPeca(pecaMovida);
+
+            // Remove o peão capturado, que está na mesma coluna do destino, mas em linha diferente
+            int linhaPeaoCapturado = casaOrigem.getPosicao().getLinha();
+            char colunaPeaoCapturado = casaDestino.getPosicao().getColuna();
+            Posicao posPeaoCapturado = new Posicao(colunaPeaoCapturado, linhaPeaoCapturado);
+            getCasa(posPeaoCapturado).removerPeca();
+        }
+        // Lógica de Roque
+        else if (jogada.isRoque()) {
              executarRoque(jogada);
-        } else {
+        } 
+        // Movimento Padrão
+        else {
             casaOrigem.removerPeca();
             casaDestino.setPeca(pecaMovida);
         }
