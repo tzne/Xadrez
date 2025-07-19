@@ -47,7 +47,7 @@ public class Jogo {
         // --- Peças Brancas ---
         // Peões
         for (char col = 'a'; col <= 'h'; col++) {
-            Peca peao = new Peao(Cor.BRANCA); // Você criará a classe Peao depois
+            Peca peao = new Peao(Cor.BRANCA);
             tabuleiro.getCasa(new Posicao(col, 2)).setPeca(peao);
             branco.adicionarPeca(peao);
         }
@@ -74,7 +74,7 @@ public class Jogo {
         // --- Peças Pretas ---
         // Peões
         for (char col = 'a'; col <= 'h'; col++) {
-            Peca peao = new Peao(Cor.PRETA); // Você criará a classe Peao depois
+            Peca peao = new Peao(Cor.PRETA);
             tabuleiro.getCasa(new Posicao(col, 7)).setPeca(peao);
             preto.adicionarPeca(peao);
         }
@@ -97,9 +97,6 @@ public class Jogo {
         Peca reiP = new Rei(Cor.PRETA);
         tabuleiro.getCasa(new Posicao('e', 8)).setPeca(reiP); preto.adicionarPeca(reiP);
 
-        // Note: As classes Peao, Torre, Cavalo, Bispo, Dama, Rei precisam existir.
-        // Por enquanto, as chamadas a 'new Peao(Cor.BRANCA)' etc. resultarão em erro de compilação
-        // até que você crie essas classes que estendem 'Peca'.
     }
 
     public Tabuleiro getTabuleiro() {
@@ -142,82 +139,64 @@ public class Jogo {
      * Tenta executar uma jogada no jogo.
      * Este é o método principal que encapsula a lógica de regras e atualização do estado.
      *
-     * @param jogada A jogada proposta.
+     * @param jogadaProposta A jogada proposta pelo usuário.
      * @return true se a jogada foi válida e executada, false caso contrário.
      */
-    public boolean executarJogada(Jogada jogada) {
-        // 1. Validação básica da jogada (quem está movendo, se é sua vez, etc.)
-        if (jogada.getJogador() != jogadorAtual) {
-            System.out.println("Não é a vez do jogador " + jogada.getJogador().getCor() + ".");
+     public boolean executarJogada(Jogada jogadaProposta) {
+        if (jogadaProposta.getJogador() != jogadorAtual) {
+            System.out.println("Não é a vez do jogador " + jogadaProposta.getJogador().getCor() + ".");
             return false;
         }
 
-        Peca pecaMovida = jogada.getPecaMovida();
-        Casa casaOrigem = jogada.getCasaOrigem();
-        Casa casaDestino = jogada.getCasaDestino();
+        Peca pecaMovida = jogadaProposta.getPecaMovida();
+        Casa casaOrigem = jogadaProposta.getCasaOrigem();
+        Casa casaDestino = jogadaProposta.getCasaDestino();
 
-        // 2. Validação se a peça pertence ao jogador atual
         if (pecaMovida.getCor() != jogadorAtual.getCor()) {
             System.out.println("Você só pode mover suas próprias peças.");
             return false;
         }
 
-        // 3. Validação se a peça está realmente na casa de origem
         if (casaOrigem.getPeca() != pecaMovida) {
             System.out.println("A peça na casa de origem não corresponde à peça na jogada.");
             return false;
         }
 
-        // 4. Verificar se a casa de destino contém uma peça do mesmo jogador
-        if (!casaDestino.estaVazia() && casaDestino.getPeca().getCor() == jogadorAtual.getCor()) {
-            System.out.println("Não é possível mover para uma casa ocupada por uma peça da sua cor.");
+        List<Jogada> movimentosLegais = pecaMovida.calcularMovimentosLegais(tabuleiro, this);
+        boolean movimentoValido = false;
+        Jogada jogadaReal = null;
+
+        for (Jogada legal : movimentosLegais) {
+            if (legal.getCasaDestino().equals(casaDestino)) {
+                movimentoValido = true;
+                jogadaReal = legal; 
+                break;
+            }
+        }
+
+        if (!movimentoValido) {
+            System.out.println("Movimento inválido para a peça " + pecaMovida.getTipo() + ".");
             return false;
         }
 
-        // 5. Verificar se a jogada é legal para o tipo de peça (aqui chamaria o método da Peca)
-        // ESSA É A PARTE CRÍTICA QUE VAI REQUERER MUITA LÓGICA NAS SUBCLASSES DE PECA.
-        // Por enquanto, vamos assumir que se chegou aqui, a peça "sabe" que pode mover.
-        // A validação de "movimentos legais" real será feita dentro de Peca.calcularMovimentosLegais.
-        // Aqui, precisaríamos comparar a 'jogada' recebida com a lista de movimentos legais gerada pela peça.
-
-        // Uma implementação mais robusta faria:
-        // List<Jogada> movimentosLegais = pecaMovida.calcularMovimentosLegais(tabuleiro, this);
-        // if (!movimentosLegais.contains(jogada)) {
-        //     System.out.println("Movimento inválido para esta peça.");
-        //     return false;
-        // }
-        // Para que .contains(jogada) funcione, você precisaria implementar equals() e hashCode() em Jogada,
-        // o que pode ser complicado dada a complexidade de Jogada.
-        // Uma alternativa é gerar as jogadas e tentar encontrar uma que corresponda aos parâmetros chave da jogada recebida.
-
-        // Simulação do movimento no tabuleiro (chamando o método do Tabuleiro)
-        boolean movimentoSucesso = tabuleiro.executarMovimento(jogada);
+        boolean movimentoSucesso = tabuleiro.executarMovimento(jogadaReal);
 
         if (movimentoSucesso) {
-            historicoJogadas.add(jogada);
-            this.ultimaJogada = jogada; // Atualiza a última jogada
+            historicoJogadas.add(jogadaReal);
+            this.ultimaJogada = jogadaReal;
 
-            // Lógica para capturas: se uma peça foi capturada, removê-la do jogador adversário
-            if (jogada.getPecaCapturada() != null) {
+            if (jogadaReal.getPecaCapturada() != null) {
                 Jogador adversario = getJogador(jogadorAtual.getCor() == Cor.BRANCA ? Cor.PRETA : Cor.BRANCA);
-                adversario.removerPeca(jogada.getPecaCapturada());
-                System.out.println("Peça capturada: " + jogada.getPecaCapturada().getTipo());
+                adversario.removerPeca(jogadaReal.getPecaCapturada());
+                System.out.println("Peça capturada: " + jogadaReal.getPecaCapturada().getTipo());
             }
 
-            // TODO: Lógica para verificar Xeque, Xeque-mate, Empate após a jogada
-            // Isso é complexo e envolve:
-            // 1. Verificar se o próprio rei do jogador atual ficou em xeque após o movimento (movimento ilegal).
-            // 2. Verificar se o rei do adversário está em xeque.
-            // 3. Se estiver em xeque, verificar se é xeque-mate.
-            // 4. Verificar condições de empate.
-            // setEstadoJogo(EstadoJogo.XEQUEMATE); // Exemplo
-
-            // Trocar o jogador atual
             trocarJogadorAtual();
             return true;
         }
         return false;
     }
+
 
     /**
      * Troca o jogador atual.
@@ -228,51 +207,5 @@ public class Jogo {
         } else {
             jogadorAtual = getJogador(Cor.BRANCA);
         }
-    }
-
-    // Métodos utilitários adicionais podem ser necessários aqui, como:
-    // - isReiEmXeque(Cor cor)
-    // - getTodasPecas(Cor cor)
-    // - verificarXequeMate()
-    // - verificarEmpate()
-
-    /**
-     * Exemplo de como usar o jogo (Main para teste temporário)
-     */
-    public static void main(String[] args) {
-        System.out.println("Iniciando jogo de xadrez...");
-        Jogo jogo = new Jogo();
-        jogo.getTabuleiro().imprimirTabuleiro(); // Imprime o tabuleiro inicial
-
-        // Exemplo de uma jogada de Peão (se Peao já estiver implementado)
-        // Isso é apenas um exemplo básico e não tem validação completa!
-        // Requer que a classe Peao exista
-        try {
-            Posicao origemPeao = new Posicao('e', 2);
-            Posicao destinoPeao = new Posicao('e', 4);
-            Casa casaOrigem = jogo.getTabuleiro().getCasa(origemPeao);
-            Casa casaDestino = jogo.getTabuleiro().getCasa(destinoPeao);
-            Peca peaoMovido = casaOrigem.getPeca();
-
-            if (peaoMovido != null && peaoMovido.getTipo() == TipoPeca.PEAO && peaoMovido.getCor() == Cor.BRANCA) {
-                System.out.println("\nTentando mover Peão de e2 para e4...");
-                Jogada jogadaTeste = new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, peaoMovido);
-                boolean sucesso = jogo.executarJogada(jogadaTeste);
-                if (sucesso) {
-                    System.out.println("Movimento do peão bem-sucedido.");
-                    jogo.getTabuleiro().imprimirTabuleiro();
-                } else {
-                    System.out.println("Movimento do peão falhou.");
-                }
-            } else {
-                System.out.println("Não há um peão branco em e2 para mover.");
-            }
-        } catch (IllegalArgumentException e) {
-            System.err.println("Erro de posição: " + e.getMessage());
-        }
-
-        // Você pode continuar adicionando mais jogadas e testando o fluxo.
-        // Lembre-se que a lógica completa de movimentos e xeque/mate é complexa
-        // e será implementada nas subclasses de Peca e em métodos de Jogo.
     }
 }
