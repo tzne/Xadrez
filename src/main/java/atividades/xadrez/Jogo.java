@@ -130,16 +130,66 @@ public class Jogo {
                         .orElse(null);
     }
 
+     /**
+     * Encontra a casa de uma peça específica no tabuleiro.
+     */
+    private Casa findCasaDaPeca(Peca peca) {
+        for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
+            for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
+                char c = (char) ('a' + j);
+                int l = Tabuleiro.TAMANHO - i;
+                Casa casa = this.tabuleiro.getCasa(new Posicao(c, l));
+                if (casa.getPeca() == peca) {
+                    return casa;
+                }
+            }
+        }
+        return null;
+    }
+
+
     /**
      * Verifica se uma determinada casa está sob ataque por qualquer peça da cor atacante.
+     * Esta é a versão corrigida para evitar StackOverflow.
      */
-    public boolean isCasaEmAtaque(Posicao posicao, Cor corAtacante) {
+    public boolean isCasaEmAtaque(Posicao posicaoAlvo, Cor corAtacante) {
         Jogador atacante = getJogador(corAtacante);
         for (Peca peca : atacante.getPecas()) {
-            List<Jogada> movimentos = peca.calcularMovimentosLegais(this.tabuleiro, this);
-            for (Jogada jogada : movimentos) {
-                if (jogada.getCasaDestino().getPosicao().equals(posicao)) {
+            Casa casaDaPeca = findCasaDaPeca(peca);
+            if (casaDaPeca == null) continue;
+
+            // Lógica de ataque do Peão (somente diagonal)
+            if (peca.getTipo() == TipoPeca.PEAO) {
+                int direcao = (peca.getCor() == Cor.BRANCA) ? 1 : -1;
+                Posicao posOrigem = casaDaPeca.getPosicao();
+                
+                // Checa as duas capturas diagonais
+                for (int modColuna : new int[]{-1, 1}) {
+                    char novaColunaChar = (char)(posOrigem.getColuna() + modColuna);
+                    if (novaColunaChar >= 'a' && novaColunaChar <= 'h') {
+                        Posicao posDestinoCaptura = new Posicao(novaColunaChar, posOrigem.getLinha() + direcao);
+                        if (posDestinoCaptura.equals(posicaoAlvo)) {
+                            return true;
+                        }
+                    }
+                }
+            } 
+            // Lógica de ataque do Rei (somente adjacentes) - EVITA RECURSÃO
+            else if (peca.getTipo() == TipoPeca.REI) {
+                Posicao posRei = casaDaPeca.getPosicao();
+                int diffLinha = Math.abs(posRei.getLinha() - posicaoAlvo.getLinha());
+                int diffColuna = Math.abs(posRei.getColuna() - posicaoAlvo.getColuna());
+                if (diffLinha <= 1 && diffColuna <= 1) {
                     return true;
+                }
+            } 
+            // Lógica para outras peças
+            else {
+                List<Jogada> movimentos = peca.calcularMovimentosLegais(this.tabuleiro, this);
+                for (Jogada jogada : movimentos) {
+                    if (jogada.getCasaDestino().getPosicao().equals(posicaoAlvo)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -150,15 +200,14 @@ public class Jogo {
      * Encontra a posição do Rei de uma determinada cor.
      */
     private Posicao findPosicaoRei(Cor corRei) {
-        for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
-            for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
-                char c = (char) ('a' + j);
-                int l = Tabuleiro.TAMANHO - i;
-                Posicao p = new Posicao(c,l);
-                Peca peca = tabuleiro.getPecaEmPosicao(p);
-                if (peca != null && peca.getTipo() == TipoPeca.REI && peca.getCor() == corRei) {
-                    return p;
-                }
+        Peca rei = getJogador(corRei).getPecas().stream()
+            .filter(p -> p.getTipo() == TipoPeca.REI)
+            .findFirst().orElse(null);
+        
+        if (rei != null) {
+            Casa casaDoRei = findCasaDaPeca(rei);
+            if (casaDoRei != null) {
+                return casaDoRei.getPosicao();
             }
         }
         return null; // Não deve acontecer em um jogo normal
