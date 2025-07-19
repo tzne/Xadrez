@@ -9,17 +9,15 @@ import atividades.xadrez.Peca;
 import atividades.xadrez.TipoPeca;
 import atividades.xadrez.Tabuleiro;
 import atividades.xadrez.Jogada;
+import atividades.xadrez.Casa;
+import atividades.xadrez.Posicao;
 import java.util.List;
-import java.util.ArrayList; // Exemplo de import
+import java.util.ArrayList;
+
 /**
  *
  * @author ruama
  */
-// Importe Tabuleiro, Jogo, Jogada quando existirem
-// import seu.pacote.Tabuleiro;
-// import seu.pacote.Jogo;
-// import seu.pacote.Jogada;
-
 public class Torre extends Peca {
 
     public Torre(Cor cor) {
@@ -29,9 +27,59 @@ public class Torre extends Peca {
     @Override
     public List<Jogada> calcularMovimentosLegais(Tabuleiro tabuleiro, Jogo jogo) {
         List<Jogada> movimentos = new ArrayList<>();
-        // Lógica específica para calcular movimentos da Torre
-        // (movimentos em linhas e colunas, sem pular peças, etc.)
-        // Isso será mais complexo e precisará das classes Casa, Posicao, Tabuleiro.
+        Casa casaOrigem = null;
+
+        // Encontra a casa onde a torre está
+        for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
+            for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
+                char coluna = (char) ('a' + j);
+                int linha = Tabuleiro.TAMANHO - i;
+                Casa casa = tabuleiro.getCasa(new Posicao(coluna, linha));
+                if (casa.getPeca() == this) {
+                    casaOrigem = casa;
+                    break;
+                }
+            }
+            if (casaOrigem != null) break;
+        }
+
+        if (casaOrigem == null) {
+            return movimentos;
+        }
+
+        // Vetores de direção: vertical e horizontal
+        int[][] direcoes = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        for (int[] d : direcoes) {
+            adicionarMovimentosEmLinha(tabuleiro, jogo, casaOrigem, d[0], d[1], movimentos);
+        }
+
         return movimentos;
+    }
+
+    private void adicionarMovimentosEmLinha(Tabuleiro tabuleiro, Jogo jogo, Casa casaOrigem, int dLinha, int dColuna, List<Jogada> movimentos) {
+        Posicao posOrigem = casaOrigem.getPosicao();
+        
+        for (int i = 1; i < Tabuleiro.TAMANHO; i++) {
+            int novaLinha = posOrigem.getLinha() + i * dLinha;
+            char novaColunaChar = (char) (posOrigem.getColuna() + i * dColuna);
+
+            if (novaLinha < 1 || novaLinha > Tabuleiro.TAMANHO || novaColunaChar < 'a' || novaColunaChar > 'h') {
+                break; // Fora do tabuleiro
+            }
+
+            Posicao posDestino = new Posicao(novaColunaChar, novaLinha);
+            Casa casaDestino = tabuleiro.getCasa(posDestino);
+
+            if (casaDestino.estaVazia()) {
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this));
+            } else {
+                Peca pecaNoDestino = casaDestino.getPeca();
+                if (pecaNoDestino.getCor() != this.getCor()) {
+                    movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaNoDestino, false, false, null));
+                }
+                break; // Para, pois encontrou uma peça
+            }
+        }
     }
 }

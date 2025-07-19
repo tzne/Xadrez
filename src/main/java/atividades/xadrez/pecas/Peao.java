@@ -9,17 +9,15 @@ import atividades.xadrez.Peca;
 import atividades.xadrez.TipoPeca;
 import atividades.xadrez.Tabuleiro;
 import atividades.xadrez.Jogada;
+import atividades.xadrez.Casa;
+import atividades.xadrez.Posicao;
 import java.util.List;
-import java.util.ArrayList; // Exemplo de import
+import java.util.ArrayList;
+
 /**
  *
  * @author ruama
  */
-// Importe Tabuleiro, Jogo, Jogada quando existirem
-// import seu.pacote.Tabuleiro;
-// import seu.pacote.Jogo;
-// import seu.pacote.Jogada;
-
 public class Peao extends Peca {
 
     public Peao(Cor cor) {
@@ -29,9 +27,55 @@ public class Peao extends Peca {
     @Override
     public List<Jogada> calcularMovimentosLegais(Tabuleiro tabuleiro, Jogo jogo) {
         List<Jogada> movimentos = new ArrayList<>();
-        // Lógica específica para calcular movimentos da Torre
-        // (movimentos em linhas e colunas, sem pular peças, etc.)
-        // Isso será mais complexo e precisará das classes Casa, Posicao, Tabuleiro.
+        Casa casaOrigem = null;
+
+        for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
+            for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
+                char c = (char) ('a' + j);
+                int l = Tabuleiro.TAMANHO - i;
+                Casa casa = tabuleiro.getCasa(new Posicao(c, l));
+                if (casa.getPeca() == this) {
+                    casaOrigem = casa;
+                    break;
+                }
+            }
+            if (casaOrigem != null) break;
+        }
+        if (casaOrigem == null) return movimentos;
+        
+        Posicao posOrigem = casaOrigem.getPosicao();
+        int direcao = (this.getCor() == Cor.BRANCA) ? 1 : -1;
+
+        // 1. Movimento simples para frente
+        Posicao posDestinoFrente1 = new Posicao(posOrigem.getColuna(), posOrigem.getLinha() + direcao);
+        if (tabuleiro.getCasa(posDestinoFrente1) != null && tabuleiro.getCasa(posDestinoFrente1).estaVazia()) {
+            movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this));
+            
+            // 2. Movimento duplo no primeiro lance
+            if (!this.jaMoveu()) {
+                Posicao posDestinoFrente2 = new Posicao(posOrigem.getColuna(), posOrigem.getLinha() + 2 * direcao);
+                if (tabuleiro.getCasa(posDestinoFrente2) != null && tabuleiro.getCasa(posDestinoFrente2).estaVazia()) {
+                    movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente2), this));
+                }
+            }
+        }
+        
+        // 3. Captura na diagonal
+        int[] colunasLaterais = {-1, 1};
+        for (int modColuna : colunasLaterais) {
+            char novaColunaChar = (char)(posOrigem.getColuna() + modColuna);
+            if (novaColunaChar >= 'a' && novaColunaChar <= 'h') {
+                Posicao posDestinoCaptura = new Posicao(novaColunaChar, posOrigem.getLinha() + direcao);
+                Casa casaDestino = tabuleiro.getCasa(posDestinoCaptura);
+                if (casaDestino != null && !casaDestino.estaVazia() && casaDestino.getPeca().getCor() != this.getCor()) {
+                    movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, null));
+                }
+            }
+        }
+
+        // TODO: Implementar En Passant
+        // TODO: Implementar Promoção do Peão
+
         return movimentos;
     }
 }
