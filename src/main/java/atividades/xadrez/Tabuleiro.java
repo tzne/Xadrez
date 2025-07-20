@@ -10,7 +10,7 @@ package atividades.xadrez;
  */
 
 public class Tabuleiro {
-    private Casa[][] casas; // Array 8x8 de Casas
+    private Casa[][] casas; // 8x8 de Casas
     public static final int TAMANHO = 8;
 
     public Tabuleiro() {
@@ -45,9 +45,7 @@ public class Tabuleiro {
         return (casa != null) ? casa.getPeca() : null;
     }
     
-    /**
-     * Executa um movimento simulado, retornando a peça capturada (se houver).
-     */
+   
     public Peca executarMovimentoSimulado(Jogada jogada) {
         Casa casaOrigem = jogada.getCasaOrigem();
         Casa casaDestino = jogada.getCasaDestino();
@@ -59,22 +57,17 @@ public class Tabuleiro {
         return pecaCapturada;
     }
     
-    /**
-     * Desfaz um movimento simulado.
-     */
+    
     public void desfazerMovimentoSimulado(Jogada jogada, Peca pecaCapturada) {
         Casa casaOrigem = jogada.getCasaOrigem();
         Casa casaDestino = jogada.getCasaDestino();
         Peca pecaMovida = jogada.getPecaMovida();
 
         casaOrigem.setPeca(pecaMovida);
-        casaDestino.setPeca(pecaCapturada); // Recoloca a peça capturada
+        casaDestino.setPeca(pecaCapturada);
     }
 
 
-    /**
-     * Executa um movimento real no tabuleiro.
-     */
     public boolean executarMovimento(Jogada jogada) {
         Casa casaOrigem = jogada.getCasaOrigem();
         Casa casaDestino = jogada.getCasaDestino();
@@ -87,11 +80,11 @@ public class Tabuleiro {
 
         // Lógica de En Passant
         if (jogada.isEnPassant()) {
-             // Move o peão que captura
+             
             casaOrigem.removerPeca();
             casaDestino.setPeca(pecaMovida);
 
-            // Remove o peão capturado, que está na mesma coluna do destino, mas em linha diferente
+            
             int linhaPeaoCapturado = casaOrigem.getPosicao().getLinha();
             char colunaPeaoCapturado = casaDestino.getPosicao().getColuna();
             Posicao posPeaoCapturado = new Posicao(colunaPeaoCapturado, linhaPeaoCapturado);

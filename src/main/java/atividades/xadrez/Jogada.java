@@ -18,7 +18,7 @@ public class Jogada {
     private boolean isEnPassant;      // Indica se a jogada é um en passant
     private TipoPeca pecaPromovida;   // O tipo de peça para qual um peão foi promovido (null se não houver promoção)
 
-    // Construtor mínimo para uma jogada simples
+   
     public Jogada(Jogador jogador, Casa casaOrigem, Casa casaDestino, Peca pecaMovida) {
         this.jogador = jogador;
         this.casaOrigem = casaOrigem;
@@ -30,17 +30,17 @@ public class Jogada {
         this.pecaPromovida = null;
     }
 
-    // Construtor para jogadas mais complexas
+
     public Jogada(Jogador jogador, Casa casaOrigem, Casa casaDestino, Peca pecaMovida,
                   Peca pecaCapturada, boolean isRoque, boolean isEnPassant, TipoPeca pecaPromovida) {
-        this(jogador, casaOrigem, casaDestino, pecaMovida); // Chama o construtor mínimo
+        this(jogador, casaOrigem, casaDestino, pecaMovida);
         this.pecaCapturada = pecaCapturada;
         this.isRoque = isRoque;
         this.isEnPassant = isEnPassant;
         this.pecaPromovida = pecaPromovida;
     }
 
-    // --- Getters para todos os atributos ---
+   
     public Jogador getJogador() {
         return jogador;
     }
@@ -73,14 +73,9 @@ public class Jogada {
         return pecaPromovida;
     }
 
-    // --- Métodos Setter (se você precisar modificar a jogada após criada, mas geralmente são imutáveis) ---
-    // Exemplo:
     public void setPecaCapturada(Peca pecaCapturada) {
         this.pecaCapturada = pecaCapturada;
     }
-
-    // Você pode adicionar outros setters se a jogada for construída em etapas.
-    // No entanto, para fins de registro e validação, é comum que Jogada seja imutável após criada.
 
     @Override
     public String toString() {
