@@ -1,20 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez;
 
-/**
- *
- * @author ruama
- */
 public class Casa {
-    private Posicao posicao; // A posição da casa no tabuleiro
-    private Peca peca;       // A peça que ocupa esta casa (pode ser null se vazia)
+    private Posicao posicao; // posição da casa no tabuleiro
+    private Peca peca;
 
     public Casa(Posicao posicao) {
         this.posicao = posicao;
-        this.peca = null; // Uma casa começa vazia por padrão
+        this.peca = null;
     }
 
     public Posicao getPosicao() {
@@ -25,19 +17,16 @@ public class Casa {
         return peca;
     }
 
-    // Método para colocar uma peça nesta casa
     public void setPeca(Peca peca) {
         this.peca = peca;
     }
 
-    // Método para remover a peça desta casa
     public Peca removerPeca() {
         Peca pecaRemovida = this.peca;
         this.peca = null;
         return pecaRemovida;
     }
 
-    // Método para verificar se a casa está vazia
     public boolean estaVazia() {
         return peca == null;
     }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez.pecas;
 import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
@@ -14,10 +10,6 @@ import atividades.xadrez.Posicao;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- *
- * @author ruama
- */
 public class Torre extends Peca {
 
     public Torre(Cor cor) {
@@ -65,7 +57,7 @@ public class Torre extends Peca {
             char novaColunaChar = (char) (posOrigem.getColuna() + i * dColuna);
 
             if (novaLinha < 1 || novaLinha > Tabuleiro.TAMANHO || novaColunaChar < 'a' || novaColunaChar > 'h') {
-                break; // Fora do tabuleiro
+                break;
             }
 
             Posicao posDestino = new Posicao(novaColunaChar, novaLinha);
@@ -78,7 +70,7 @@ public class Torre extends Peca {
                 if (pecaNoDestino.getCor() != this.getCor()) {
                     movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaNoDestino, false, false, null));
                 }
-                break; // Para, pois encontrou uma peça
+                break;
             }
         }
     }

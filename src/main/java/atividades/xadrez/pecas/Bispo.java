@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez.pecas;
 import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
@@ -14,10 +10,6 @@ import atividades.xadrez.Posicao;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- *
- * @author ruama
- */
 public class Bispo extends Peca {
 
     public Bispo(Cor cor) {
@@ -29,7 +21,6 @@ public class Bispo extends Peca {
         List<Jogada> movimentos = new ArrayList<>();
         Casa casaOrigem = null;
 
-        // Encontra a casa onde o bispo está
         for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
             for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
                 char coluna = (char) ('a' + j);
@@ -47,7 +38,6 @@ public class Bispo extends Peca {
             return movimentos;
         }
 
-        // Vetores de direção: diagonais
         int[][] direcoes = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 
         for (int[] d : direcoes) {

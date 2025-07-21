@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez.pecas;
 import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
@@ -14,10 +10,6 @@ import atividades.xadrez.Posicao;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- *
- * @author ruama
- */
 public class Rainha extends Peca {
 
     public Rainha(Cor cor) {
@@ -49,8 +41,8 @@ public class Rainha extends Peca {
         
        
         int[][] direcoes = {
-            {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, // Diagonais
-            {1, 0}, {-1, 0}, {0, 1}, {0, -1}  // Retas (vertical e horizontal)
+            {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, // diagonais
+            {1, 0}, {-1, 0}, {0, 1}, {0, -1}  // retas
         };
 
         for (int[] d : direcoes) {
@@ -76,10 +68,8 @@ public class Rainha extends Peca {
             Casa casaDestino = tabuleiro.getCasa(posDestino);
 
             if (casaDestino.estaVazia()) {
-                // Se a casa está vazia, é um movimento válido
                 movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this));
             } else {
-                // Se a casa contém uma peça
                 Peca pecaNoDestino = casaDestino.getPeca();
                 if (pecaNoDestino.getCor() != this.getCor()) {
                     

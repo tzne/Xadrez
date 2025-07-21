@@ -1,22 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez;
 
-/**
- *
- * @author ruama
- */
 public class Jogada {
-    private Jogador jogador;          // O jogador que está fazendo a jogada
-    private Casa casaOrigem;          // A casa de onde a peça se moveu
-    private Casa casaDestino;         // A casa para onde a peça se moveu
-    private Peca pecaMovida;          // A peça que foi movida
-    private Peca pecaCapturada;       // A peça que foi capturada (null se não houver captura)
-    private boolean isRoque;          // Indica se a jogada é um roque
-    private boolean isEnPassant;      // Indica se a jogada é um en passant
-    private TipoPeca pecaPromovida;   // O tipo de peça para qual um peão foi promovido (null se não houver promoção)
+    private Jogador jogador;
+    private Casa casaOrigem;
+    private Casa casaDestino;
+    private Peca pecaMovida;
+    private Peca pecaCapturada;
+    private boolean isRoque;
+    private boolean isEnPassant;
+    private TipoPeca pecaPromovida;
 
    
     public Jogada(Jogador jogador, Casa casaOrigem, Casa casaDestino, Peca pecaMovida) {

@@ -12,9 +12,6 @@ public class Jogo {
     private List<Jogada> historicoJogadas;
     private Jogada ultimaJogada;
 
-    /**
-     * Construtor padrão para iniciar um novo jogo com as peças na posição inicial.
-     */
     public Jogo() {
         this.tabuleiro = new Tabuleiro();
         this.jogadores = new ArrayList<>();
@@ -23,20 +20,13 @@ public class Jogo {
         this.ultimaJogada = null;
         inicializarJogadores();
         posicionarPecasIniciais();
-        this.jogadorAtual = getJogador(Cor.BRANCA); // Brancas começam
+        this.jogadorAtual = getJogador(Cor.BRANCA);
     }
 
-    /**
-     * Construtor para carregar um jogo. Inicializa o tabuleiro e os jogadores,
-     * mas não posiciona as peças, deixando o tabuleiro vazio para ser preenchido
-     * com os dados de um arquivo.
-     * @param carregarJogo Um booleano para diferenciar este construtor.
-     */
     public Jogo(boolean carregarJogo) {
         this.tabuleiro = new Tabuleiro();
         this.jogadores = new ArrayList<>();
         this.historicoJogadas = new ArrayList<>();
-        // O estado e o jogador atual serão definidos durante o carregamento.
         inicializarJogadores();
     }
 
@@ -50,9 +40,6 @@ public class Jogo {
         this.jogadorAtual = jogador;
     }
 
-    /**
-     * Define o estado atual do jogo. Usado ao carregar um jogo.
-     */
     public void setEstadoJogo(EstadoJogo estado) {
         this.estadoJogo = estado;
     }
@@ -62,7 +49,7 @@ public class Jogo {
         Jogador branco = getJogador(Cor.BRANCA);
         Jogador preto = getJogador(Cor.PRETA);
 
-        // --- Peças Brancas ---
+        // --- brancas ---
        
         for (char col = 'a'; col <= 'h'; col++) {
             Peca peao = new Peao(Cor.BRANCA);
@@ -89,7 +76,7 @@ public class Jogo {
         tabuleiro.getCasa(new Posicao('e', 1)).setPeca(reiB); branco.adicionarPeca(reiB);
 
 
-        // --- Peças Pretas ---
+        // --- pretas ---
 
         for (char col = 'a'; col <= 'h'; col++) {
             Peca peao = new Peao(Cor.PRETA);
@@ -165,9 +152,6 @@ public class Jogo {
     }
 
 
-    /**
-     * Verifica se uma determinada casa está sob ataque por qualquer peça da cor atacante.
-     */
     public boolean isCasaEmAtaque(Posicao posicaoAlvo, Cor corAtacante) {
         Jogador atacante = getJogador(corAtacante);
         for (Peca peca : atacante.getPecas()) {
@@ -231,7 +215,7 @@ public class Jogo {
     public boolean isReiEmXeque(Cor corRei) {
         Posicao posRei = findPosicaoRei(corRei);
         if (posRei == null) {
-            return false; // Rei não está no tabuleiro
+            return false;
         }
         Cor corOponente = (corRei == Cor.BRANCA) ? Cor.PRETA : Cor.BRANCA;
         return isCasaEmAtaque(posRei, corOponente);
@@ -244,14 +228,11 @@ public class Jogo {
         for (Peca peca : jogador.getPecas()) {
             List<Jogada> movimentosDaPeca = peca.calcularMovimentosLegais(tabuleiro, this);
             for (Jogada jogada : movimentosDaPeca) {
-               
                 Peca pecaCapturada = tabuleiro.executarMovimentoSimulado(jogada);
-                
                 
                 if (!isReiEmXeque(jogador.getCor())) {
                     movimentosSeguros.add(jogada);
                 }
-                
                 
                 tabuleiro.desfazerMovimentoSimulado(jogada, pecaCapturada);
             }
@@ -277,14 +258,12 @@ public class Jogo {
         Jogada jogadaReal = null;
         for (Jogada valida : movimentosValidos) {
             if (valida.getPecaMovida() == pecaMovida && valida.getCasaDestino().equals(jogadaProposta.getCasaDestino())) {
-                // Se for uma promoção, garante que estamos pegando a jogada com a peça correta
                 if (jogadaProposta.getPecaPromovida() != null) {
                     if (valida.getPecaPromovida() == jogadaProposta.getPecaPromovida()) {
                         jogadaReal = valida;
                         break;
                     }
                 } else {
-                    // Garante que não é uma jogada de promoção
                     if (valida.getPecaPromovida() == null) {
                        jogadaReal = valida;
                        break;
@@ -313,20 +292,16 @@ public class Jogo {
                 adversario.removerPeca(jogadaReal.getPecaCapturada());
             }
 
-            // LÓGICA DA PROMOÇÃO
             if (jogadaReal.getPecaPromovida() != null) {
                 Casa casaDestino = jogadaReal.getCasaDestino();
                 
-                // Remove o peão da lista do jogador
                 jogadorAtual.removerPeca(pecaMovida);
                 
-                // Cria a nova peça promovida
                 Peca pecaNova = criarPeca(jogadaReal.getPecaPromovida(), jogadorAtual.getCor());
                 pecaNova.setJaMoveu(true);
                 
-                // Adiciona a nova peça à lista do jogador e ao tabuleiro
                 jogadorAtual.adicionarPeca(pecaNova);
-                casaDestino.setPeca(pecaNova); // Substitui o peão no tabuleiro
+                casaDestino.setPeca(pecaNova);
             }
             
             Jogador adversario = getAdversario();

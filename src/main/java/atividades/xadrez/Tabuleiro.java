@@ -1,16 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez;
 
-/**
- *
- * @author ruama
- */
-
 public class Tabuleiro {
-    private Casa[][] casas; // 8x8 de Casas
+    private Casa[][] casas; // 8x8
     public static final int TAMANHO = 8;
 
     public Tabuleiro() {
@@ -44,8 +35,7 @@ public class Tabuleiro {
         Casa casa = getCasa(posicao);
         return (casa != null) ? casa.getPeca() : null;
     }
-    
-   
+
     public Peca executarMovimentoSimulado(Jogada jogada) {
         Casa casaOrigem = jogada.getCasaOrigem();
         Casa casaDestino = jogada.getCasaDestino();
@@ -57,7 +47,6 @@ public class Tabuleiro {
         return pecaCapturada;
     }
     
-    
     public void desfazerMovimentoSimulado(Jogada jogada, Peca pecaCapturada) {
         Casa casaOrigem = jogada.getCasaOrigem();
         Casa casaDestino = jogada.getCasaDestino();
@@ -66,7 +55,6 @@ public class Tabuleiro {
         casaOrigem.setPeca(pecaMovida);
         casaDestino.setPeca(pecaCapturada);
     }
-
 
     public boolean executarMovimento(Jogada jogada) {
         Casa casaOrigem = jogada.getCasaOrigem();
@@ -78,23 +66,21 @@ public class Tabuleiro {
             return false;
         }
 
-        // Lógica de En Passant
+        // En Passant
         if (jogada.isEnPassant()) {
-             
             casaOrigem.removerPeca();
             casaDestino.setPeca(pecaMovida);
 
-            
             int linhaPeaoCapturado = casaOrigem.getPosicao().getLinha();
             char colunaPeaoCapturado = casaDestino.getPosicao().getColuna();
             Posicao posPeaoCapturado = new Posicao(colunaPeaoCapturado, linhaPeaoCapturado);
             getCasa(posPeaoCapturado).removerPeca();
         }
-        // Lógica de Roque
+        // roque
         else if (jogada.isRoque()) {
              executarRoque(jogada);
         } 
-        // Movimento Padrão
+
         else {
             casaOrigem.removerPeca();
             casaDestino.setPeca(pecaMovida);
@@ -109,11 +95,11 @@ public class Tabuleiro {
         Casa casaDestinoRei = jogada.getCasaDestino();
         Peca rei = jogada.getPecaMovida();
         
-        // Move o Rei
+        // mover o rei
         casaOrigemRei.removerPeca();
         casaDestinoRei.setPeca(rei);
         
-        // Move a Torre
+        // mover a torre
         int linha = casaOrigemRei.getPosicao().getLinha();
         boolean roquePequeno = casaDestinoRei.getPosicao().getColuna() == 'g';
         

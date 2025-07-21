@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez.pecas;
 import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
@@ -14,10 +10,6 @@ import atividades.xadrez.Posicao;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- *
- * @author ruama
- */
 public class Cavalo extends Peca {
 
     public Cavalo(Cor cor) {
@@ -47,7 +39,6 @@ public class Cavalo extends Peca {
         }
 
         Posicao posOrigem = casaOrigem.getPosicao();
-        // Todos os 8 movimentos possíveis do cavalo
         int[][] movimentosCavalo = {
             {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
             {1, 2}, {1, -2}, {-1, 2}, {-1, -2}

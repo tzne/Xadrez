@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
-// --- IMPORTAÇÕES CORRIGIDAS E ADICIONADAS ---
 import atividades.xadrez.Jogo;
 import atividades.xadrez.Cor;
 import atividades.xadrez.EstadoJogo;
@@ -18,13 +17,6 @@ import atividades.xadrez.Peca;
 import atividades.xadrez.Jogada;
 
 
-/**
- * Classe principal que gerencia o fluxo do jogo de xadrez.
- * Permite iniciar um novo jogo, carregar uma partida salva, salvar o estado atual do jogo
- * e executar testes de unidade.
- *
- * @author ruama
- */
 public class Gerenciador {
 
     private static final Scanner scanner = new Scanner(System.in);
@@ -172,7 +164,7 @@ public class Gerenciador {
             System.out.println("ERRO: Não foi possível salvar o arquivo em '" + nomeArquivo + "'.");
         }
     }
-    
+
     private static void iniciarPartida(Jogo jogo) {
         while (jogo.getEstadoJogo() == EstadoJogo.EM_JOGO) {
             jogo.getTabuleiro().imprimirTabuleiro();
@@ -252,7 +244,6 @@ public class Gerenciador {
         jogo.getTabuleiro().imprimirTabuleiro();
         if(jogo.getEstadoJogo() == EstadoJogo.XEQUEMATE) {
             System.out.println("Fim de Jogo! XEQUE-MATE!");
-            // O vencedor é o jogador que deu o xeque-mate, ou seja, o jogador atual no momento do xeque-mate
             System.out.println("Vencedor: " + jogo.getJogadorAtual().getCor());
         } else {
              System.out.println("Fim de Jogo! Estado: " + jogo.getEstadoJogo());

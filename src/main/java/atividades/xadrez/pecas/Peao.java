@@ -10,10 +10,6 @@ import atividades.xadrez.Posicao;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- *
- * @author ruama
- */
 public class Peao extends Peca {
 
     public Peao(Cor cor) {
@@ -43,7 +39,7 @@ public class Peao extends Peca {
         int direcao = (this.getCor() == Cor.BRANCA) ? 1 : -1;
         int promotionRank = (this.getCor() == Cor.BRANCA) ? 8 : 1;
 
-        // 1. Movimento simples para frente
+        // movimento simples para frente
         Posicao posDestinoFrente1 = new Posicao(posOrigem.getColuna(), posOrigem.getLinha() + direcao);
         if (tabuleiro.getCasa(posDestinoFrente1) != null && tabuleiro.getCasa(posDestinoFrente1).estaVazia()) {
             if (posDestinoFrente1.getLinha() == promotionRank) {
@@ -56,7 +52,7 @@ public class Peao extends Peca {
                 movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this));
             }
             
-            // 2. Movimento duplo no primeiro lance
+            // movimento duplo no primeiro lance
             if (!this.jaMoveu()) {
                 Posicao posDestinoFrente2 = new Posicao(posOrigem.getColuna(), posOrigem.getLinha() + 2 * direcao);
                 if (tabuleiro.getCasa(posDestinoFrente2) != null && tabuleiro.getCasa(posDestinoFrente2).estaVazia()) {
@@ -65,7 +61,7 @@ public class Peao extends Peca {
             }
         }
         
-        // 3. Captura na diagonal
+        // capturar uma peça na diagonal
         int[] colunasLaterais = {-1, 1};
         for (int modColuna : colunasLaterais) {
             char novaColunaChar = (char)(posOrigem.getColuna() + modColuna);
@@ -74,7 +70,7 @@ public class Peao extends Peca {
                 Casa casaDestino = tabuleiro.getCasa(posDestinoCaptura);
                 if (casaDestino != null && !casaDestino.estaVazia() && casaDestino.getPeca().getCor() != this.getCor()) {
                     if (posDestinoCaptura.getLinha() == promotionRank) {
-                        // Promoção com captura
+                        // captura com promocao
                         movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.RAINHA));
                         movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.TORRE));
                         movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.BISPO));
@@ -86,7 +82,7 @@ public class Peao extends Peca {
             }
         }
 
-        // 4. Implementação do En Passant
+        // En Passant
         Jogada ultimaJogada = jogo.getUltimaJogada();
         if (ultimaJogada != null &&
             ultimaJogada.getPecaMovida().getTipo() == TipoPeca.PEAO &&

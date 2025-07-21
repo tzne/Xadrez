@@ -1,19 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez;
 
-/**
- *
- * @author ruama
- */
 import java.util.ArrayList;
 import java.util.List;
 
 public class Jogador {
     private Cor cor; // BRANCA ou PRETA
-    private List<Peca> pecas; // Lista de peças que o jogador possui
+    private List<Peca> pecas; // lista de peças que o jogador possui
 
     public Jogador(Cor cor) {
         this.cor = cor;
@@ -42,6 +34,6 @@ public class Jogador {
 
     @Override
     public String toString() {
-        return "Jogador " + cor.name(); // Ex: "Jogador BRANCA"
+        return "Jogador " + cor.name();
     }
 }

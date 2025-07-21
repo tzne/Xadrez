@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez.pecas;
 import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
@@ -14,10 +10,6 @@ import atividades.xadrez.Posicao;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- *
- * @author ruama
- */
 public class Rei extends Peca {
 
     public Rei(Cor cor) {
@@ -49,7 +41,6 @@ public class Rei extends Peca {
         Posicao posOrigem = casaOrigem.getPosicao();
         Cor corOponente = (this.getCor() == Cor.BRANCA) ? Cor.PRETA : Cor.BRANCA;
         
-        // Movimentos em todas as 8 direções, apenas uma casa
         int[][] movimentosRei = {
             {1, 0}, {-1, 0}, {0, 1}, {0, -1},
             {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
@@ -64,7 +55,6 @@ public class Rei extends Peca {
                 Casa casaDestino = tabuleiro.getCasa(posDestino);
 
                 if (casaDestino.estaVazia() || casaDestino.getPeca().getCor() != this.getCor()) {
-                    // VERIFICAÇÃO SE A CASA DE DESTINO ESTÁ SOB ATAQUE
                     if (!jogo.isCasaEmAtaque(posDestino, corOponente)) {
                         Peca pecaCapturada = casaDestino.estaVazia() ? null : casaDestino.getPeca();
                         movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaCapturada, false, false, null));
@@ -73,7 +63,7 @@ public class Rei extends Peca {
             }
         }
         
-        // LÓGICA DO ROQUE
+        // roque
         if (!this.jaMoveu() && !jogo.isCasaEmAtaque(posOrigem, corOponente)) {
             // Roque do lado do Rei (Roque Pequeno)
             verificarRoque(jogo, tabuleiro, casaOrigem, 1, corOponente, movimentos);
@@ -91,7 +81,6 @@ public class Rei extends Peca {
 
         if (pecaTorre != null && pecaTorre.getTipo() == TipoPeca.TORRE && !pecaTorre.jaMoveu()) {
             boolean caminhoLivre = true;
-            // Verifica se o caminho entre o rei e a torre está livre e seguro
             for (int i = 1; i < (direcao == 1 ? 3 : 4); i++) {
                 char colunaVerificada = (char) (casaOrigem.getPosicao().getColuna() + i * direcao);
                 Posicao posVerificada = new Posicao(colunaVerificada, linha);
