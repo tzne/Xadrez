@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Other/File.java to edit this template
- */
 package atividades.xadrez.pecas;
 import atividades.xadrez.Cor;
 import atividades.xadrez.Jogo;
@@ -45,11 +41,20 @@ public class Peao extends Peca {
         
         Posicao posOrigem = casaOrigem.getPosicao();
         int direcao = (this.getCor() == Cor.BRANCA) ? 1 : -1;
+        int promotionRank = (this.getCor() == Cor.BRANCA) ? 8 : 1;
 
         // 1. Movimento simples para frente
         Posicao posDestinoFrente1 = new Posicao(posOrigem.getColuna(), posOrigem.getLinha() + direcao);
         if (tabuleiro.getCasa(posDestinoFrente1) != null && tabuleiro.getCasa(posDestinoFrente1).estaVazia()) {
-            movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this));
+            if (posDestinoFrente1.getLinha() == promotionRank) {
+                // É uma jogada de promoção
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this, null, false, false, TipoPeca.RAINHA));
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this, null, false, false, TipoPeca.TORRE));
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this, null, false, false, TipoPeca.BISPO));
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this, null, false, false, TipoPeca.CAVALO));
+            } else {
+                movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, tabuleiro.getCasa(posDestinoFrente1), this));
+            }
             
             // 2. Movimento duplo no primeiro lance
             if (!this.jaMoveu()) {
@@ -68,7 +73,15 @@ public class Peao extends Peca {
                 Posicao posDestinoCaptura = new Posicao(novaColunaChar, posOrigem.getLinha() + direcao);
                 Casa casaDestino = tabuleiro.getCasa(posDestinoCaptura);
                 if (casaDestino != null && !casaDestino.estaVazia() && casaDestino.getPeca().getCor() != this.getCor()) {
-                    movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, null));
+                    if (posDestinoCaptura.getLinha() == promotionRank) {
+                        // Promoção com captura
+                        movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.RAINHA));
+                        movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.TORRE));
+                        movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.BISPO));
+                        movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, TipoPeca.CAVALO));
+                    } else {
+                        movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, casaDestino.getPeca(), false, false, null));
+                    }
                 }
             }
         }
@@ -77,9 +90,9 @@ public class Peao extends Peca {
         Jogada ultimaJogada = jogo.getUltimaJogada();
         if (ultimaJogada != null &&
             ultimaJogada.getPecaMovida().getTipo() == TipoPeca.PEAO &&
-            Math.abs(ultimaJogada.getCasaOrigem().getPosicao().getLinha() - ultimaJogada.getCasaDestino().getPosicao().getLinha()) == 2 && // Foi um pulo duplo
-            posOrigem.getLinha() == ultimaJogada.getCasaDestino().getPosicao().getLinha() && // O peão está na mesma linha
-            Math.abs(posOrigem.getColuna() - ultimaJogada.getCasaDestino().getPosicao().getColuna()) == 1) { // O peão está em uma coluna adjacente
+            Math.abs(ultimaJogada.getCasaOrigem().getPosicao().getLinha() - ultimaJogada.getCasaDestino().getPosicao().getLinha()) == 2 &&
+            posOrigem.getLinha() == ultimaJogada.getCasaDestino().getPosicao().getLinha() &&
+            Math.abs(posOrigem.getColuna() - ultimaJogada.getCasaDestino().getPosicao().getColuna()) == 1) { 
 
             Peca pecaCapturada = ultimaJogada.getPecaMovida();
             Posicao posDestinoEnPassant = new Posicao(ultimaJogada.getCasaDestino().getPosicao().getColuna(), posOrigem.getLinha() + direcao);
@@ -87,8 +100,6 @@ public class Peao extends Peca {
             movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaCapturada, false, true, null));
         }
 
-
-        // TODO: Implementar Promoção do Peão
         return movimentos;
     }
 }

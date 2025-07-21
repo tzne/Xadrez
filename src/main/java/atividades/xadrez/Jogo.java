@@ -263,7 +263,6 @@ public class Jogo {
      public boolean executarJogada(Jogada jogadaProposta) {
         Peca pecaMovida = jogadaProposta.getPecaMovida();
         
-      
         if (jogadaProposta.getJogador() != jogadorAtual) {
             System.out.println("Não é a vez do jogador " + jogadaProposta.getJogador().getCor() + ".");
             return false;
@@ -273,14 +272,24 @@ public class Jogo {
             return false;
         }
 
-        
         List<Jogada> movimentosValidos = getTodosMovimentosSeguros(jogadorAtual);
         
         Jogada jogadaReal = null;
         for (Jogada valida : movimentosValidos) {
             if (valida.getPecaMovida() == pecaMovida && valida.getCasaDestino().equals(jogadaProposta.getCasaDestino())) {
-                jogadaReal = valida;
-                break;
+                // Se for uma promoção, garante que estamos pegando a jogada com a peça correta
+                if (jogadaProposta.getPecaPromovida() != null) {
+                    if (valida.getPecaPromovida() == jogadaProposta.getPecaPromovida()) {
+                        jogadaReal = valida;
+                        break;
+                    }
+                } else {
+                    // Garante que não é uma jogada de promoção
+                    if (valida.getPecaPromovida() == null) {
+                       jogadaReal = valida;
+                       break;
+                    }
+                }
             }
         }
 
@@ -304,6 +313,21 @@ public class Jogo {
                 adversario.removerPeca(jogadaReal.getPecaCapturada());
             }
 
+            // LÓGICA DA PROMOÇÃO
+            if (jogadaReal.getPecaPromovida() != null) {
+                Casa casaDestino = jogadaReal.getCasaDestino();
+                
+                // Remove o peão da lista do jogador
+                jogadorAtual.removerPeca(pecaMovida);
+                
+                // Cria a nova peça promovida
+                Peca pecaNova = criarPeca(jogadaReal.getPecaPromovida(), jogadorAtual.getCor());
+                pecaNova.setJaMoveu(true);
+                
+                // Adiciona a nova peça à lista do jogador e ao tabuleiro
+                jogadorAtual.adicionarPeca(pecaNova);
+                casaDestino.setPeca(pecaNova); // Substitui o peão no tabuleiro
+            }
             
             Jogador adversario = getAdversario();
             if (isReiEmXeque(adversario.getCor())) {
@@ -319,6 +343,17 @@ public class Jogo {
             return true;
         }
         return false;
+    }
+    private Peca criarPeca(TipoPeca tipo, Cor cor) {
+        switch (tipo) {
+            case REI: return new Rei(cor);
+            case RAINHA: return new Rainha(cor);
+            case TORRE: return new Torre(cor);
+            case BISPO: return new Bispo(cor);
+            case CAVALO: return new Cavalo(cor);
+            case PEAO: return new Peao(cor);
+            default: throw new IllegalArgumentException("Tipo de peça desconhecido: " + tipo);
+        }
     }
     
     public Jogador getAdversario() {

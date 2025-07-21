@@ -194,7 +194,7 @@ public class Gerenciador {
      * @param jogo A instância do jogo a ser jogada.
      */
     private static void iniciarPartida(Jogo jogo) {
-        while (jogo.getEstadoJogo() == EstadoJogo.EM_JOGO) {
+                while (jogo.getEstadoJogo() == EstadoJogo.EM_JOGO) {
             jogo.getTabuleiro().imprimirTabuleiro();
             System.out.println("------------------------------------");
             System.out.println("Vez do " + jogo.getJogadorAtual().getCor() + ".");
@@ -239,23 +239,51 @@ public class Gerenciador {
 
                 if (casaOrigem.estaVazia()) {
                     System.out.println("ERRO: Casa de origem vazia. Tente novamente.");
-                    continue;
+                    continue; 
                 }
 
                 Peca pecaMovida = casaOrigem.getPeca();
-                Jogada novaJogada = new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, pecaMovida);
+                Peca pecaCapturada = casaDestino.getPeca();
+                Jogada novaJogada;
+
+                // VERIFICA SE É UMA JOGADA DE PROMOÇÃO
+                int rankPromocao = (pecaMovida.getCor() == Cor.BRANCA) ? 8 : 1;
+                boolean isPromotion = (pecaMovida.getTipo() == TipoPeca.PEAO && destinoPos.getLinha() == rankPromocao);
+
+                if (isPromotion) {
+                    TipoPeca pecaPromovida = solicitarPecaPromocao();
+                    novaJogada = new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, pecaMovida, pecaCapturada, false, false, pecaPromovida);
+                } else {
+                    novaJogada = new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, pecaMovida, pecaCapturada, false, false, null);
+                }
 
                 if (!jogo.executarJogada(novaJogada)) {
-                     System.out.println("Movimento inválido. Tente novamente.");
+                    System.out.println("Tente novamente.");
                 }
 
             } catch (IllegalArgumentException e) {
-                System.out.println("ERRO na posição digitada: " + e.getMessage());
+                System.out.println("ERRO na posição digitada: " + e.getMessage() + ". Formato esperado 'a1' a 'h8'.");
             } catch (Exception e) {
                 System.out.println("Ocorreu um erro inesperado: " + e.getMessage());
                 e.printStackTrace();
             }
         }
+
+                private static TipoPeca solicitarPecaPromocao() {
+        while (true) {
+            System.out.print("PROMOÇÃO! Escolha a peça (Q - Rainha, R - Torre, B - Bispo, N - Cavalo): ");
+            String escolha = scanner.nextLine().toUpperCase();
+            switch (escolha) {
+                case "Q": return TipoPeca.RAINHA;
+                case "R": return TipoPeca.TORRE;
+                case "B": return TipoPeca.BISPO;
+                case "N": return TipoPeca.CAVALO;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        }
+    }
+
 
         System.out.println("------------------------------------");
         jogo.getTabuleiro().imprimirTabuleiro();
