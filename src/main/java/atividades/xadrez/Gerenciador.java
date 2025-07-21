@@ -7,6 +7,17 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
+// --- IMPORTAÇÕES CORRIGIDAS E ADICIONADAS ---
+import atividades.xadrez.Jogo;
+import atividades.xadrez.Cor;
+import atividades.xadrez.EstadoJogo;
+import atividades.xadrez.TipoPeca;
+import atividades.xadrez.Posicao;
+import atividades.xadrez.Casa;
+import atividades.xadrez.Peca;
+import atividades.xadrez.Jogada;
+
+
 /**
  * Classe principal que gerencia o fluxo do jogo de xadrez.
  * Permite iniciar um novo jogo, carregar uma partida salva, salvar o estado atual do jogo
@@ -18,10 +29,6 @@ public class Gerenciador {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    /**
-     * Ponto de entrada da aplicação. Exibe o menu principal e gerencia as
-     * opções do usuário.
-     */
     public static void main(String[] args) {
         System.out.println("=== Simulador de Jogo de Xadrez ===");
 
@@ -55,9 +62,6 @@ public class Gerenciador {
         }
     }
 
-    /**
-     * Exibe o menu principal de opções para o usuário.
-     */
     private static void exibirMenuPrincipal() {
         System.out.println("\n--- MENU PRINCIPAL ---");
         System.out.println("1. Iniciar Novo Jogo");
@@ -67,18 +71,12 @@ public class Gerenciador {
         System.out.print("Escolha uma opção: ");
     }
 
-    /**
-     * Inicia uma nova partida de xadrez a partir do estado inicial.
-     */
     private static void iniciarNovoJogo() {
         System.out.println("\n--- NOVO JOGO ---");
         Jogo jogo = new Jogo();
         iniciarPartida(jogo);
     }
 
-    /**
-     * Carrega uma partida de xadrez a partir de um arquivo de texto.
-     */
     private static void carregarJogo() {
         System.out.println("\n--- CARREGAR JOGO ---");
         System.out.print("Digite o nome do arquivo para carregar (ex: jogo.txt): ");
@@ -91,9 +89,8 @@ public class Gerenciador {
         }
 
         try (Scanner fileScanner = new Scanner(arquivo)) {
-            Jogo jogo = new Jogo(true); // Inicia um jogo vazio para carregar
+            Jogo jogo = new Jogo(true); 
 
-            // Lê as configurações do jogo
             if (fileScanner.hasNextLine()) {
                 String linhaJogador = fileScanner.nextLine();
                 Cor corJogador = Cor.valueOf(linhaJogador.split(":")[1]);
@@ -105,7 +102,6 @@ public class Gerenciador {
                 jogo.setEstadoJogo(estado);
             }
 
-            // Lê as peças do tabuleiro
             while (fileScanner.hasNextLine()) {
                 String linhaPeca = fileScanner.nextLine();
                 String[] partes = linhaPeca.split(",");
@@ -133,12 +129,6 @@ public class Gerenciador {
         }
     }
 
-    /**
-     * Cria uma instância de uma peça com base no tipo e na cor.
-     * @param tipo O tipo da peça (REI, RAINHA, etc.).
-     * @param cor A cor da peça (BRANCA ou PRETA).
-     * @return Uma nova instância da peça.
-     */
     private static Peca criarPeca(TipoPeca tipo, Cor cor) {
         switch (tipo) {
             case REI: return new Rei(cor);
@@ -151,21 +141,15 @@ public class Gerenciador {
         }
     }
 
-    /**
-     * Salva o estado atual da partida em um arquivo de texto.
-     * @param jogo O jogo a ser salvo.
-     */
     private static void salvarJogo(Jogo jogo) {
         System.out.println("\n--- SALVAR JOGO ---");
         System.out.print("Digite o nome do arquivo para salvar (ex: jogo.txt): ");
         String nomeArquivo = scanner.nextLine();
 
         try (PrintWriter writer = new PrintWriter(new File(nomeArquivo))) {
-            // Salva o jogador atual e o estado do jogo
             writer.println("JogadorAtual:" + jogo.getJogadorAtual().getCor());
             writer.println("EstadoJogo:" + jogo.getEstadoJogo());
 
-            // Salva cada peça no tabuleiro
             for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
                 for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
                     char c = (char) ('a' + j);
@@ -183,18 +167,14 @@ public class Gerenciador {
                     }
                 }
             }
-
             System.out.println("Jogo salvo com sucesso em '" + nomeArquivo + "'.");
         } catch (FileNotFoundException e) {
             System.out.println("ERRO: Não foi possível salvar o arquivo em '" + nomeArquivo + "'.");
         }
     }
-    /**
-     * Contém o loop principal da partida, recebendo as jogadas do usuário.
-     * @param jogo A instância do jogo a ser jogada.
-     */
+    
     private static void iniciarPartida(Jogo jogo) {
-                while (jogo.getEstadoJogo() == EstadoJogo.EM_JOGO) {
+        while (jogo.getEstadoJogo() == EstadoJogo.EM_JOGO) {
             jogo.getTabuleiro().imprimirTabuleiro();
             System.out.println("------------------------------------");
             System.out.println("Vez do " + jogo.getJogadorAtual().getCor() + ".");
@@ -245,8 +225,7 @@ public class Gerenciador {
                 Peca pecaMovida = casaOrigem.getPeca();
                 Peca pecaCapturada = casaDestino.getPeca();
                 Jogada novaJogada;
-
-                // VERIFICA SE É UMA JOGADA DE PROMOÇÃO
+                
                 int rankPromocao = (pecaMovida.getCor() == Cor.BRANCA) ? 8 : 1;
                 boolean isPromotion = (pecaMovida.getTipo() == TipoPeca.PEAO && destinoPos.getLinha() == rankPromocao);
 
@@ -269,7 +248,18 @@ public class Gerenciador {
             }
         }
 
-                private static TipoPeca solicitarPecaPromocao() {
+        System.out.println("------------------------------------");
+        jogo.getTabuleiro().imprimirTabuleiro();
+        if(jogo.getEstadoJogo() == EstadoJogo.XEQUEMATE) {
+            System.out.println("Fim de Jogo! XEQUE-MATE!");
+            // O vencedor é o jogador que deu o xeque-mate, ou seja, o jogador atual no momento do xeque-mate
+            System.out.println("Vencedor: " + jogo.getJogadorAtual().getCor());
+        } else {
+             System.out.println("Fim de Jogo! Estado: " + jogo.getEstadoJogo());
+        }
+    }
+
+    private static TipoPeca solicitarPecaPromocao() {
         while (true) {
             System.out.print("PROMOÇÃO! Escolha a peça (Q - Rainha, R - Torre, B - Bispo, N - Cavalo): ");
             String escolha = scanner.nextLine().toUpperCase();
@@ -284,50 +274,35 @@ public class Gerenciador {
         }
     }
 
-
-        System.out.println("------------------------------------");
-        jogo.getTabuleiro().imprimirTabuleiro();
-        if (jogo.getEstadoJogo() == EstadoJogo.XEQUEMATE) {
-            System.out.println("Fim de Jogo! XEQUE-MATE!");
-            System.out.println("Vencedor: " + jogo.getAdversario().getCor()); // O vencedor é o jogador que deu o xeque-mate
-        } else {
-            System.out.println("Fim de Jogo! Estado: " + jogo.getEstadoJogo());
-        }
-    }
-
-    /**
-     * Executa uma suíte de testes para verificar a integridade das classes do jogo.
-     */
     private static void executarTestes() {
         System.out.println("\n--- EXECUTANDO TESTES ---");
         boolean todosPassaram = true;
-
-        // Teste 1: Posição do Rei Branco no início
         Jogo jogoTeste = new Jogo();
         Peca reiBranco = jogoTeste.getTabuleiro().getPecaEmPosicao(new Posicao('e', 1));
         if (reiBranco == null || reiBranco.getTipo() != TipoPeca.REI || reiBranco.getCor() != Cor.BRANCA) {
             System.out.println("FALHOU: Teste de posição inicial do Rei Branco.");
             todosPassaram = false;
         }
-
-        // Teste 2: Movimento inicial do Peão
-        boolean moveuPeao = jogoTeste.executarJogada(new Jogada(
+        
+        Jogada jogadaTeste = new Jogada(
             jogoTeste.getJogadorAtual(),
             jogoTeste.getTabuleiro().getCasa(new Posicao('e', 2)),
             jogoTeste.getTabuleiro().getCasa(new Posicao('e', 4)),
             jogoTeste.getTabuleiro().getPecaEmPosicao(new Posicao('e', 2))
-        ));
+        );
+        
+        boolean moveuPeao = jogoTeste.executarJogada(jogadaTeste);
+        
         if (!moveuPeao) {
             System.out.println("FALHOU: Teste de movimento inicial do Peão.");
             todosPassaram = false;
         }
 
-        // Teste 3: Checar se o jogador mudou para PRETO
         if (jogoTeste.getJogadorAtual().getCor() != Cor.PRETA) {
             System.out.println("FALHOU: Teste de troca de jogador.");
             todosPassaram = false;
         }
-
+        
         if (todosPassaram) {
             System.out.println("SUCESSO: Todos os testes foram concluídos com êxito.");
         } else {
