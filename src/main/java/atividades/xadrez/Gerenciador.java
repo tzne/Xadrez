@@ -20,7 +20,7 @@ import atividades.xadrez.Jogada;
 // src/main/java/seu/pacote/Main.java
 
 
-public class Xadrez {
+public class Gerenciador {
 
     public static void main(String[] args) {
         System.out.println("=== Simulador de Jogo de Xadrez ===");
