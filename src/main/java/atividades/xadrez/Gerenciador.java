@@ -1,5 +1,6 @@
 package atividades.xadrez;
 
+import atividades.xadrez.pecas.*;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +29,7 @@ public class Gerenciador {
             exibirMenuPrincipal();
             try {
                 int escolha = scanner.nextInt();
-                scanner.nextLine(); // Consumir a nova linha
+                scanner.nextLine(); 
 
                 switch (escolha) {
                     case 1:
@@ -49,7 +50,7 @@ public class Gerenciador {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("ERRO: Entrada inválida. Por favor, digite um número.");
-                scanner.nextLine(); // Limpar o buffer do scanner
+                scanner.nextLine(); 
             }
         }
     }
@@ -82,16 +83,71 @@ public class Gerenciador {
         System.out.println("\n--- CARREGAR JOGO ---");
         System.out.print("Digite o nome do arquivo para carregar (ex: jogo.txt): ");
         String nomeArquivo = scanner.nextLine();
+        File arquivo = new File(nomeArquivo);
 
-        try {
-            // Esta é uma maneira simplificada de carregar o jogo.
-            // A classe Jogo precisaria de lógica para interpretar o arquivo.
-            Jogo jogo = new Jogo(); // A lógica de carregamento real estaria aqui
-            // Simulando o carregamento...
-            System.out.println("Jogo carregado com sucesso de " + nomeArquivo + " (simulação).");
+        if (!arquivo.exists()) {
+            System.out.println("ERRO: O arquivo '" + nomeArquivo + "' não foi encontrado.");
+            return;
+        }
+
+        try (Scanner fileScanner = new Scanner(arquivo)) {
+            Jogo jogo = new Jogo(true); // Inicia um jogo vazio para carregar
+
+            // Lê as configurações do jogo
+            if (fileScanner.hasNextLine()) {
+                String linhaJogador = fileScanner.nextLine();
+                Cor corJogador = Cor.valueOf(linhaJogador.split(":")[1]);
+                jogo.setJogadorAtual(jogo.getJogador(corJogador));
+            }
+            if (fileScanner.hasNextLine()) {
+                String linhaEstado = fileScanner.nextLine();
+                EstadoJogo estado = EstadoJogo.valueOf(linhaEstado.split(":")[1]);
+                jogo.setEstadoJogo(estado);
+            }
+
+            // Lê as peças do tabuleiro
+            while (fileScanner.hasNextLine()) {
+                String linhaPeca = fileScanner.nextLine();
+                String[] partes = linhaPeca.split(",");
+
+                TipoPeca tipo = TipoPeca.valueOf(partes[0]);
+                Cor cor = Cor.valueOf(partes[1]);
+                Posicao pos = new Posicao(partes[2].charAt(0), Integer.parseInt(partes[2].substring(1)));
+                boolean jaMoveu = Boolean.parseBoolean(partes[3]);
+
+                Peca peca = criarPeca(tipo, cor);
+                peca.setJaMoveu(jaMoveu);
+
+                jogo.getTabuleiro().getCasa(pos).setPeca(peca);
+                jogo.getJogador(cor).adicionarPeca(peca);
+            }
+
+            System.out.println("Jogo carregado com sucesso de '" + nomeArquivo + "'.");
             iniciarPartida(jogo);
+
+        } catch (FileNotFoundException e) {
+            System.out.println("ERRO: O arquivo '" + nomeArquivo + "' não foi encontrado.");
         } catch (Exception e) {
-            System.out.println("ERRO ao carregar o jogo: " + e.getMessage());
+            System.out.println("ERRO ao carregar o jogo: Ocorreu um problema ao ler o arquivo.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Cria uma instância de uma peça com base no tipo e na cor.
+     * @param tipo O tipo da peça (REI, RAINHA, etc.).
+     * @param cor A cor da peça (BRANCA ou PRETA).
+     * @return Uma nova instância da peça.
+     */
+    private static Peca criarPeca(TipoPeca tipo, Cor cor) {
+        switch (tipo) {
+            case REI: return new Rei(cor);
+            case RAINHA: return new Rainha(cor);
+            case TORRE: return new Torre(cor);
+            case BISPO: return new Bispo(cor);
+            case CAVALO: return new Cavalo(cor);
+            case PEAO: return new Peao(cor);
+            default: throw new IllegalArgumentException("Tipo de peça desconhecido: " + tipo);
         }
     }
 
@@ -105,18 +161,34 @@ public class Gerenciador {
         String nomeArquivo = scanner.nextLine();
 
         try (PrintWriter writer = new PrintWriter(new File(nomeArquivo))) {
-            // Exemplo de formato de salvamento
+            // Salva o jogador atual e o estado do jogo
             writer.println("JogadorAtual:" + jogo.getJogadorAtual().getCor());
             writer.println("EstadoJogo:" + jogo.getEstadoJogo());
-            // Aqui iria a lógica para salvar cada peça e sua posição.
-            // Por exemplo: "PEAO,BRANCA,a2,false"
 
-            System.out.println("Jogo salvo com sucesso em " + nomeArquivo);
+            // Salva cada peça no tabuleiro
+            for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
+                for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
+                    char c = (char) ('a' + j);
+                    int l = Tabuleiro.TAMANHO - i;
+                    Posicao pos = new Posicao(c, l);
+                    Peca peca = jogo.getTabuleiro().getPecaEmPosicao(pos);
+
+                    if (peca != null) {
+                        writer.println(
+                            peca.getTipo() + "," +
+                            peca.getCor() + "," +
+                            pos.toString() + "," +
+                            peca.jaMoveu()
+                        );
+                    }
+                }
+            }
+
+            System.out.println("Jogo salvo com sucesso em '" + nomeArquivo + "'.");
         } catch (FileNotFoundException e) {
-            System.out.println("ERRO: Não foi possível salvar o arquivo em " + nomeArquivo);
+            System.out.println("ERRO: Não foi possível salvar o arquivo em '" + nomeArquivo + "'.");
         }
     }
-
     /**
      * Contém o loop principal da partida, recebendo as jogadas do usuário.
      * @param jogo A instância do jogo a ser jogada.
