@@ -1,11 +1,5 @@
-
 package atividades.xadrez;
 import atividades.xadrez.pecas.*;
-/**
- *
- * @author ruama
- */
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,23 +9,52 @@ public class Jogo {
     private List<Jogador> jogadores;
     private Jogador jogadorAtual;
     private EstadoJogo estadoJogo;
-    private List<Jogada> historicoJogadas; 
-    private Jogada ultimaJogada; 
+    private List<Jogada> historicoJogadas;
+    private Jogada ultimaJogada;
 
+    /**
+     * Construtor padrão para iniciar um novo jogo com as peças na posição inicial.
+     */
     public Jogo() {
         this.tabuleiro = new Tabuleiro();
         this.jogadores = new ArrayList<>();
         this.historicoJogadas = new ArrayList<>();
-        this.estadoJogo = EstadoJogo.EM_JOGO; // O jogo começa em andamento
-        this.ultimaJogada = null; // Nenhuma jogada ainda
+        this.estadoJogo = EstadoJogo.EM_JOGO;
+        this.ultimaJogada = null;
         inicializarJogadores();
         posicionarPecasIniciais();
         this.jogadorAtual = getJogador(Cor.BRANCA); // Brancas começam
     }
 
+    /**
+     * Construtor para carregar um jogo. Inicializa o tabuleiro e os jogadores,
+     * mas não posiciona as peças, deixando o tabuleiro vazio para ser preenchido
+     * com os dados de um arquivo.
+     * @param carregarJogo Um booleano para diferenciar este construtor.
+     */
+    public Jogo(boolean carregarJogo) {
+        this.tabuleiro = new Tabuleiro();
+        this.jogadores = new ArrayList<>();
+        this.historicoJogadas = new ArrayList<>();
+        // O estado e o jogador atual serão definidos durante o carregamento.
+        inicializarJogadores();
+    }
+
+
     private void inicializarJogadores() {
         jogadores.add(new Jogador(Cor.BRANCA));
         jogadores.add(new Jogador(Cor.PRETA));
+    }
+
+    public void setJogadorAtual(Jogador jogador) {
+        this.jogadorAtual = jogador;
+    }
+
+    /**
+     * Define o estado atual do jogo. Usado ao carregar um jogo.
+     */
+    public void setEstadoJogo(EstadoJogo estado) {
+        this.estadoJogo = estado;
     }
 
     private void posicionarPecasIniciais() {
