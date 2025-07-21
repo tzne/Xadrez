@@ -298,7 +298,7 @@ public class Jogo {
         return false;
     }
     
-    private Jogador getAdversario() {
+    public Jogador getAdversario() {
         return (jogadorAtual.getCor() == Cor.BRANCA) ? getJogador(Cor.PRETA) : getJogador(Cor.BRANCA);
     }
 
