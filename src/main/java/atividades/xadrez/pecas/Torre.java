@@ -29,7 +29,7 @@ public class Torre extends Peca {
         List<Jogada> movimentos = new ArrayList<>();
         Casa casaOrigem = null;
 
-        // Encontra a casa onde a torre está
+        
         for (int i = 0; i < Tabuleiro.TAMANHO; i++) {
             for (int j = 0; j < Tabuleiro.TAMANHO; j++) {
                 char coluna = (char) ('a' + j);
@@ -47,7 +47,7 @@ public class Torre extends Peca {
             return movimentos;
         }
 
-        // Vetores de direção: vertical e horizontal
+        
         int[][] direcoes = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
         for (int[] d : direcoes) {

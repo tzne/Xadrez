@@ -10,19 +10,18 @@ import java.util.List;
  */
 
 public abstract class Peca {
-    // Atributos conforme o diagrama
-    protected Cor cor; // Você precisará definir o enum Cor (PRETA, BRANCA)
-    protected boolean jaMoveu; // Indica se a peça já se moveu (útil para roque, peão, etc.)
-    protected TipoPeca tipo; // Para saber o tipo da peça sem precisar de instanceof
-
-    // Construtor
+    
+    protected Cor cor; 
+    protected boolean jaMoveu; 
+    protected TipoPeca tipo; 
+   
     public Peca(Cor cor, TipoPeca tipo) {
         this.cor = cor;
         this.tipo = tipo;
         this.jaMoveu = false; // Por padrão, a peça não se moveu ao ser criada
     }
 
-    // Métodos Getters
+    
     public Cor getCor() {
         return cor;
     }
@@ -35,18 +34,10 @@ public abstract class Peca {
         return tipo;
     }
 
-    // Método Setter para jaMoveu (se necessário, ou pode ser setado internamente)
+    
     public void setJaMoveu(boolean jaMoveu) {
         this.jaMoveu = jaMoveu;
     }
 
-    /**
-     * Método abstrato para calcular os movimentos legais de uma peça
-     * dado o estado atual do tabuleiro e do jogo.
-     *
-     * @param tabuleiro O tabuleiro atual do jogo.
-     * @param jogo O objeto Jogo que contém o estado atual.
-     * @return Uma lista de objetos Jogada representando todos os movimentos legais possíveis para esta peça.
-     */
     public abstract List<Jogada> calcularMovimentosLegais(Tabuleiro tabuleiro, Jogo jogo);
 }

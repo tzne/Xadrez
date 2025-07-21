@@ -44,10 +44,10 @@ public class Rainha extends Peca {
         }
 
         if (casaOrigem == null) {
-            return movimentos; // Peça não está no tabuleiro?
+            return movimentos; 
         }
         
-        // Vetores de direção: 4 diagonais e 4 retas
+       
         int[][] direcoes = {
             {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, // Diagonais
             {1, 0}, {-1, 0}, {0, 1}, {0, -1}  // Retas (vertical e horizontal)
@@ -67,9 +67,9 @@ public class Rainha extends Peca {
             int novaLinha = posOrigem.getLinha() + i * dLinha;
             char novaColunaChar = (char) (posOrigem.getColuna() + i * dColuna);
 
-            // Verifica se a posição é válida
+           
             if (novaLinha < 1 || novaLinha > Tabuleiro.TAMANHO || novaColunaChar < 'a' || novaColunaChar > 'h') {
-                break; // Fora do tabuleiro
+                break; 
             }
 
             Posicao posDestino = new Posicao(novaColunaChar, novaLinha);
@@ -82,10 +82,10 @@ public class Rainha extends Peca {
                 // Se a casa contém uma peça
                 Peca pecaNoDestino = casaDestino.getPeca();
                 if (pecaNoDestino.getCor() != this.getCor()) {
-                    // É uma peça inimiga, pode capturar
+                    
                      movimentos.add(new Jogada(jogo.getJogadorAtual(), casaOrigem, casaDestino, this, pecaNoDestino, false, false, null));
                 }
-                // Não pode mover mais nesta direção (seja peça amiga ou inimiga)
+                
                 break;
             }
         }
